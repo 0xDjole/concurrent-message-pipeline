@@ -19,7 +19,7 @@ fn send_messages() -> (mpsc::Receiver<String>, Vec<thread::JoinHandle<String>>) 
                 new_tx.send(val).unwrap();
             }
 
-            let mut finished_message = String::from("FINISHED");
+            let mut finished_message = String::from("FINISHED ");
             finished_message.push_str(&thread_number.to_string());
             finished_message
         });
@@ -40,11 +40,17 @@ fn main() {
     let (rx, handlers) = send_messages();
     receive_messages(rx);
 
+    let mut thread_responses = vec![];
+
     for handle in handlers {
-        if let Ok(thread_message) = handle.join() {
-            println!("THREAD MESSAGE: {}", thread_message);
-        }
+        let final_thread_response = if let Ok(thread_message) = handle.join() {
+            format!("THREAD MESSAGE: {}", thread_message)
+        } else {
+            format!("THREAD FAILED")
+        };
+
+        thread_responses.push(final_thread_response);
     }
 
-    println!("AT THE END WHEN COMM ENDS");
+    println!("AT THE END WHEN ALL THREADS ENDS {:?}", thread_responses);
 }
