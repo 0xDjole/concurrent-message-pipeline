@@ -40,17 +40,16 @@ fn main() {
     let (rx, handlers) = send_messages();
     receive_messages(rx);
 
-    let mut thread_responses = vec![];
-
-    for handle in handlers {
-        let final_thread_response = if let Ok(thread_message) = handle.join() {
-            format!("THREAD MESSAGE: {}", thread_message)
-        } else {
-            format!("THREAD FAILED")
-        };
-
-        thread_responses.push(final_thread_response);
-    }
+    let thread_responses: Vec<String> = handlers
+        .into_iter()
+        .map(|handle| {
+            if let Ok(thread_message) = handle.join() {
+                format!("THREAD MESSAGE: {}", thread_message)
+            } else {
+                format!("THREAD FAILED")
+            }
+        })
+        .collect();
 
     println!("AT THE END WHEN ALL THREADS ENDS {:?}", thread_responses);
 }
